@@ -1,0 +1,52 @@
+import time
+import numpy as np
+from lerobot.robots.so_follower import SO101Follower, SO101FollowerConfig
+
+PORT = "COM3"                 # your port from lerobot-find-port
+ROBOT_ID = "my_follower_arm"  # must match your calibration id
+
+robot = SO101Follower(SO101FollowerConfig(
+    port=PORT,
+    id=ROBOT_ID,
+    use_degrees=True,
+    max_relative_target=10.0,   # MUST BE A FLOAT/ safety cap per command; delete this line if your version rejects it
+))
+robot.connect()
+names = list(robot.bus.motors.keys())
+# ['shoulder_pan', 'shoulder_lift', 'elbow_flex', 'wrist_flex', 'wrist_roll', 'gripper']
+
+
+def read_q():
+    obs = robot.get_observation()
+    return {n: obs[f"{n}.pos"] for n in names}
+
+
+def move_to(target, steps=60, dt=0.05):
+    """Move smoothly to a target pose. `target` is a dict of joint -> value.
+    Joints you leave out stay where they are."""
+    start = read_q()
+    goal = {n: target.get(n, start[n]) for n in names}
+    for a in np.linspace(0, 1, steps):
+        action = {f"{n}.pos": float(start[n] + a * (goal[n] - start[n])) for n in names}
+        robot.send_action(action)
+        time.sleep(dt)
+
+
+try:
+    print(read_q()) #Reads the current SO-101 position
+    move_to({'shoulder_pan': 15.208791208791208, 'shoulder_lift': 61.142857142857146, 'elbow_flex': -54.76923076923077, 'wrist_flex': -0.13186813186813187, 'wrist_roll': -5.934065934065934, 'gripper': 2.064220183486239})
+    #Enter the output from the read_q() and use as the move_to argument to move the SO-101 to a indicated spot
+
+    #print("Current pose:", {k: round(v, 1) for k, v in read_q().items()})
+
+    #input("Press Enter to move the base +45 degrees (Ctrl+C to abort)...")
+    #move_to({"shoulder_pan": read_q()["shoulder_pan"] + 45})
+
+    time.sleep(1)
+    #input("Press Enter to return...")
+    #move_to({"shoulder_pan": read_q()["shoulder_pan"] - 45})
+
+    #print("Final pose:", {k: round(v, 1) for k, v in read_q().items()})
+
+finally:
+    robot.disconnect()
