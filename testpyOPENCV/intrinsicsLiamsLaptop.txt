@@ -1,0 +1,19 @@
+DEPTH INTRINSICS
+Width: 640
+Height: 480
+fx: 390.56256103515625
+fy: 390.56256103515625
+cx: 322.9285583496094
+cy: 233.92013549804688
+Distortion model: distortion.brown_conrady
+Distortion coefficients: [0.0, 0.0, 0.0, 0.0, 0.0]
+
+RGB INTRINSICS
+Width: 640
+Height: 480
+fx: 605.7514038085938
+fy: 605.8446044921875
+cx: 315.34918212890625
+cy: 252.7328338623047
+Distortion model: distortion.inverse_brown_conrady
+Distortion coefficients: [0.0, 0.0, 0.0, 0.0, 0.0]
