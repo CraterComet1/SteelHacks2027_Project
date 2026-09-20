@@ -149,6 +149,10 @@ def main():
             cv2.putText(frame, f"model latency: {worker.latency:.1f}s", (8, H - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
             cv2.imshow("RealSense + Nemotron 3 Nano Omni", frame)
+            if worker.result:
+                cv2.imwrite("LanternFly_Snapshot.png")
+
+
             if cv2.waitKey(1) & 0xFF == 27:  # Esc
                 break
     finally:
