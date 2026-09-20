@@ -1,0 +1,57 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard">
+
+    <link rel="stylesheet" href="./styles.css">
+    <link href="https://fonts.google.com/specimen/Lato" rel="stylesheet">
+
+    <title>Dashboard</title>
+
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <header>
+        <nav>
+            <h1>DASHBOARD</h1>
+        </nav>
+    </header>
+
+    <main>
+
+        <div class="camera-container">
+
+            <!-- Left: Live camera -->
+            <div class="video-box">
+                <h2>Live Camera</h2>
+
+                <video id="video" autoplay playsinline></video>
+            </div>
+
+            <!-- Right: Detection frame -->
+            <div class="video-box">
+                <h2>Detection</h2>
+
+                <img
+                    id="detectionFrame"
+                    src="LanternFly_Snapshot_Box.png"
+                    alt="Latest lanternfly detection"
+                >
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer>
+        <p>Steelhacks 2026</p>
+    </footer>
+
+</body>
+</html>
+```

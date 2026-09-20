@@ -150,8 +150,8 @@ def main():
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
             cv2.imshow("RealSense + Nemotron 3 Nano Omni", frame)
             if worker.result:
-                cv2.imwrite("LanternFly_Snapshot.png")
-                image = cv2.imread("LanternFly_Snapshot.png")
+                cv2.imwrite("static/LanternFly_Snapshot.png")
+                image = cv2.imread("static/LanternFly_Snapshot.png")
 
                 # Draw rectangle
                 cv2.rectangle(
@@ -162,7 +162,7 @@ def main():
                     2               # thickness
                 )
 
-                cv2.imwrite("LanternFly_Snapshot_Box.png", image)
+                cv2.imwrite("static/LanternFly_Snapshot_Box.png", image)
 
 
             if cv2.waitKey(1) & 0xFF == 27:  # Esc
