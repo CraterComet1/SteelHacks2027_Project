@@ -1,7 +1,17 @@
 from ultralytics import YOLO
+from datasets import load_dataset
+
+# Login using e.g. `huggingface-cli login` to access this dataset
+ds = load_dataset("rlogh/lanternfly_research_dataset")
 
 model = YOLO("yolo26n.pt")
 confidence_threshold = 0.5
+
+model.train(
+    data="bugs.yaml",
+    epochs=100,
+    imgsz=640
+)
 
 def detect(image):
 
