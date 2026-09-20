@@ -1,9 +1,40 @@
 import base64, json, re
 import cv2
-from openai import OpenAI
+from langchain_nvidia_ai_endpoints import ChatNVIDIA
 
-client = OpenAI(base_url="http://GPU_HOST_IP:8000/v1", api_key="EMPTY")
-MODEL = "nemotron-omni"
+
+client = ChatNVIDIA(
+  model="nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+  api_key="$NVIDIA_API_KEY",
+  temperature=0.6,
+
+  top_p=0.95,
+
+  max_completion_tokens=65536,
+)
+
+lc_messages = [
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "What is in this image?",
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "https://assets.ngc.nvidia.com/products/api-catalog/phi-3-5-vision/example1b.jpg",
+        },
+      },
+    ],
+  },
+]
+
+response = client.invoke(lc_messages)
+if response.additional_kwargs and "reasoning_content" in response.additional_kwargs:
+  print(response.additional_kwargs["reasoning_content"])
+print(response.content)
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -28,7 +59,7 @@ def locate_object(frame, target):
               '"bbox": [x1, y1, x2, y2]} where x,y is the object center in pixel coordinates.')
 
     r = client.chat.completions.create(
-        model=MODEL,
+        model=client.model,
         messages=[{"role": "user", "content": [
             {"type": "text", "text": prompt},
             {"type": "image_url", "image_url": {"url": to_data_url(frame)}},
@@ -42,11 +73,3 @@ def locate_object(frame, target):
         return json.loads(m.group(0))
     
     return {"found": False}
-
-frame = grab()
-detected = locate_object(frame, "Spotted Lantern Fly")
-if detected.get("found"):
-    cv2.circle(frame, (detected["x"], detected["y"]), 8, (0, 255, 0), 2)
-    cv2.imwrite("check.jpg", frame)
-else:
-    print("Object not found.")
