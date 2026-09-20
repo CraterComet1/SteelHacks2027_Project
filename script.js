@@ -40,40 +40,26 @@
 
         <!-- Left: Video -->
         <div class="box">
-            <video id="video" controls>
-                <source src="video.mp4" type="video/mp4">
-                Your browser does not support video.
-            </video>
+            <!-- Live camera --><div class="box"> <video id="video" autoplay playsinline></video> 
         </div>
 
         <!-- Right: Captured Frame -->
-        <div class="box">
-            <canvas id="frame"></canvas>
+        <div class="box"> 
+            <img id="detectionFrame" src="LanternFly_Snapshot_Box.png">
         </div>
 
     </div>
 
     <button onclick="captureFrame()">Capture Frame</button>
 
-    <script>
-        const video = document.getElementById("video");
-        const canvas = document.getElementById("frame");
-        const context = canvas.getContext("2d");
-
-        function captureFrame() {
-            // Make the canvas the same size as the video
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-
-            // Copy the current video frame onto the canvas
-            context.drawImage(
-                video,
-                0,
-                0,
-                canvas.width,
-                canvas.height
-            );
-        }
+    <script> 
+    const frame = document.getElementById("detectionFrame");
+    
+    // Ask for the newest frame repeatedly 
+    setInterval(() => { 
+        frame.src = "/frame?t=" + Date.now(); 
+    }, 10500); 
+    
     </script>
 
 </body>
