@@ -151,6 +151,18 @@ def main():
             cv2.imshow("RealSense + Nemotron 3 Nano Omni", frame)
             if worker.result:
                 cv2.imwrite("LanternFly_Snapshot.png")
+                image = cv2.imread("LanternFly_Snapshot.png")
+
+                # Draw rectangle
+                cv2.rectangle(
+                    image,
+                    (x1, y1),       # top-left corner
+                    (x2, y2),       # bottom-right corner
+                    (0, 255, 0),    # color: green (BGR)
+                    2               # thickness
+                )
+
+                cv2.imwrite("LanternFly_Snapshot_Box.png", image)
 
 
             if cv2.waitKey(1) & 0xFF == 27:  # Esc
