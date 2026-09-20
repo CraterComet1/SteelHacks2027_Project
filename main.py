@@ -46,13 +46,24 @@ def locate_object(frames, target):
         raise RuntimeError("no frames available in buffer")
 
     h, w = frames[-1].shape[:2]
+
     prompt = (
-        f"You are given a short sequence of frames from a live camera feed, oldest to newest, "
-        f"each of size {w}x{h}. Locate the object '{target}' in the MOST RECENT (last) frame. "
-        'Reply with JSON only: {"found": true/false, "x": int, "y": int, '
-        '"bbox": [x1, y1, x2, y2]} where x,y is the object center in pixel coordinates '
-        "of the last frame."
+        f"You are given camera frames, each exactly {w} pixels wide "
+        f"and {h} pixels high. "
+        f"Locate '{target}' ONLY in the MOST RECENT frame.\n\n"
+
+        "Return JSON only:\n"
+        '{"found": true, "x": 0, "y": 0, "bbox": [0, 0, 0, 0]}\n\n'
+
+        f"Coordinates are pixel coordinates for the {w}x{h} image. "
+        "The origin (0,0) is the top-left corner. "
+        "x increases to the right and y increases downward. "
+        "bbox MUST be [x1, y1, x2, y2], where "
+        "x1,y1 is the top-left corner and x2,y2 is the bottom-right corner. "
+        "Do NOT normalize coordinates to 0-1. "
+        "Do NOT use coordinates from earlier frames."
     )
+
 
     content = [{"type": "text", "text": prompt}]
     for frame in frames:
@@ -108,6 +119,9 @@ def run_forever(target, poll_interval=2.0, max_frames=8):
 
         try:
             detected = locate_object(frames, target)
+            print("\n========== MODEL RESPONSE ==========")
+            print(json.dumps(detected, indent=2))
+            print("====================================\n")
         except Exception as e:
             err_str = str(e)
             if "503" in err_str or "ResourceExhausted" in err_str or "rate" in err_str.lower():
@@ -123,11 +137,41 @@ def run_forever(target, poll_interval=2.0, max_frames=8):
 
         if detected.get("found"):
             latest = frames[-1].copy()
-            cv2.circle(latest, (detected["x"], detected["y"]), 8, (0, 255, 0), 2)
-            cv2.imwrite("check.jpg", latest)
-            print(f"[{time.strftime('%H:%M:%S')}] Found:", detected)
-        else:
-            print(f"[{time.strftime('%H:%M:%S')}] Object not found. Checking again in {poll_interval:.0f}s...")
+
+            # Bounding box coordinates exactly as returned by the model
+            x1, y1, x2, y2 = [int(float(v)) for v in detected["bbox"]]
+
+            cv2.rectangle(
+                latest,
+                (x1, y1),
+                (x2, y2),
+                (0, 0, 255),
+                3
+            )
+
+            # Draw center point
+            x = int(float(detected["x"]))
+            y = int(float(detected["y"]))
+
+            cv2.circle(
+                latest,
+                (x, y),
+                8,
+                (0, 255, 0),
+                -1
+            )
+
+            # Save
+            check_path = os.path.join(SCRIPT_DIR, "check.jpg")
+            success = cv2.imwrite(check_path, latest)
+
+            print(
+                f"[{time.strftime('%H:%M:%S')}] "
+                f"Found: bbox={[x1, y1, x2, y2]}, "
+                f"center=({x}, {y}), "
+                f"saved={success}"
+            )
+
 
         time.sleep(poll_interval)
 

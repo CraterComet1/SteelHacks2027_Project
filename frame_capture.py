@@ -67,6 +67,11 @@ def main():
                 print("Frame read failed, retrying...")
                 continue
 
+            height, width = frame.shape[:2]
+            channels = frame.shape[2] if len(frame.shape) == 3 else 1
+
+            #print(f"Actual frame dimensions: {width} x {height} ({channels} channels)")
+
             cv2.imshow("Live Feed - press q to quit", frame)
 
             now = time.time()
